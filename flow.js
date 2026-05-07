@@ -176,7 +176,7 @@ function playNoise(dur = 0.06, freq = 800, vol = 0.035) {
 }
 
 // ══════════════════════════════════════════════════════
-//  ÉTAT GLOBAL
+//  ÉTAT GLOBAL.
 // ══════════════════════════════════════════════════════
 const SAND_TYPES = {
   desert: { hue: 35,  sat: 62, light: 45 },
