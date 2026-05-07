@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FLOW">
+  <title>FLOW</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="flow.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+ 
+<div id="app">
+ 
+  <!-- ── PWA Install Banner ── -->
+  <div id="install-banner" style="display:none">
+    <div id="install-banner-inner">
+      <div id="install-icon">◈</div>
+      <div id="install-text">
+        <div id="install-title">Installer FLOW</div>
+        <div id="install-sub">Accès rapide · Hors-ligne · Plein écran</div>
+      </div>
+      <button id="install-btn">Installer</button>
+      <button id="install-close" aria-label="Fermer">✕</button>
+    </div>
+  </div>
+ 
+  <!-- ── En-tête ── -->
+  <div id="header">
+    <div>
+      <div id="app-label">FLOW</div>
+      <div id="mode-title">Sand</div>
+    </div>
+    <div id="header-right">
+      <div id="hint-right">interactive<br>sensation</div>
+      <!-- Bouton audio reactif -->
+      <button id="audio-toggle" aria-label="Réaction audio" style="display:none">🎵</button>
+      <!-- Bouton capture -->
+      <button id="capture-btn" aria-label="Capturer">📸</button>
+      <!-- Bouton theme switcher -->
+      <button id="theme-toggle" aria-label="Changer de thème">☀</button>
+      <!-- Bouton panneau de contrôle -->
+      <button id="ctrl-toggle" aria-label="Paramètres">⚙</button>
+    </div>
+  </div>
+ 
+  <!-- ── Panneau de contrôle contextuel ── -->
+  <div id="ctrl-panel">
+    <div id="ctrl-panel-inner">
+      <div class="ctrl-row" id="ctrl-force-row">
+        <label class="ctrl-label">Force <span id="ctrl-force-val">5</span></label>
+        <input type="range" id="ctrl-force" min="1" max="10" value="5" class="ctrl-slider">
+      </div>
+      <div class="ctrl-row" id="ctrl-density-row">
+        <label class="ctrl-label">Densité <span id="ctrl-density-val">5</span></label>
+        <input type="range" id="ctrl-density" min="1" max="10" value="5" class="ctrl-slider">
+      </div>
+      <div class="ctrl-row" id="ctrl-gravity-row">
+        <label class="ctrl-label">Gravité <span id="ctrl-gravity-val">5</span></label>
+        <input type="range" id="ctrl-gravity" min="1" max="10" value="5" class="ctrl-slider">
+      </div>
+      <div class="ctrl-row" id="ctrl-wind-row" style="display:none">
+        <label class="ctrl-label">Vent <span id="ctrl-wind-val">5</span></label>
+        <input type="range" id="ctrl-wind" min="0" max="10" value="5" class="ctrl-slider">
+      </div>
+      <div class="ctrl-row" id="ctrl-sand-type-row" style="display:none">
+        <label class="ctrl-label">Sable</label>
+        <div id="ctrl-sand-types">
+          <button class="sub-toggle active" data-val="desert">Desert</button>
+          <button class="sub-toggle" data-val="volcano">Volcano</button>
+          <button class="sub-toggle" data-val="sea">Ocean</button>
+          <button class="sub-toggle" data-val="ice">Ice</button>
+        </div>
+      </div>
+      <div class="ctrl-row" id="ctrl-slice-mat-row" style="display:none">
+        <label class="ctrl-label">Matière</label>
+        <div id="ctrl-slice-materials">
+          <button class="sub-toggle active" data-val="glass">Glass</button>
+          <button class="sub-toggle" data-val="ice">Ice</button>
+          <button class="sub-toggle" data-val="slick">Slick</button>
+          <button class="sub-toggle" data-val="slow">Slow</button>
+        </div>
+      </div>
+      <div class="ctrl-row" id="ctrl-ink-row" style="display:none">
+        <label class="ctrl-label">Ink</label>
+        <div id="ctrl-ink-options">
+          <button class="sub-toggle active" data-val="kaleido">Kaleido</button>
+          <button class="sub-toggle" data-val="soft">Soft</button>
+        </div>
+      </div>
+      <div class="ctrl-row" id="ctrl-repulse-row" style="display:none">
+        <label class="ctrl-label">Mode</label>
+        <div id="ctrl-repulse-toggle">
+          <button class="repulse-btn active" data-val="attract">Attirer</button>
+          <button class="repulse-btn" data-val="repulse">Repousser</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ── Zone de dessin ── -->
+  <div id="canvas-wrap">
+    <canvas id="c"></canvas>
+ 
+    <!-- Indicateur d'état vide -->
+    <div id="touch-hint">
+      <div class="icon" id="hint-icon">⋯</div>
+      <div class="text">touch to begin</div>
+    </div>
+ 
+    <!-- Indicateur d'action en cours -->
+    <div id="active-hint"></div>
+ 
+    <!-- Overlay flash lors du changement de mode -->
+    <div id="mode-flash"></div>
+  </div>
+ 
+  <!-- ── Barre de sélection des modes ── -->
+  <div id="mode-bar">
+    <button class="mode-btn active" data-mode="sand"
+            style="--btn-color:#d4a96a; --btn-bg:rgba(212,169,106,0.1); --btn-glow:rgba(212,169,106,0.25)">
+      <span class="btn-icon">⋯</span>
+      <span class="btn-label">Sand</span>
+    </button>
+ 
+    <button class="mode-btn" data-mode="glow"
+            style="--btn-color:#00fff7; --btn-bg:rgba(0,255,247,0.08); --btn-glow:rgba(0,255,247,0.2)">
+      <span class="btn-icon">⚡</span>
+      <span class="btn-label">Neon</span>
+    </button>
+ 
+    <button class="mode-btn" data-mode="magnet"
+            style="--btn-color:#a78bfa; --btn-bg:rgba(167,139,250,0.1); --btn-glow:rgba(167,139,250,0.22)">
+      <span class="btn-icon">◎</span>
+      <span class="btn-label">Magnet</span>
+    </button>
+ 
+    <button class="mode-btn" data-mode="slice"
+            style="--btn-color:#f8f8f8; --btn-bg:rgba(248,248,248,0.07); --btn-glow:rgba(248,248,248,0.15)">
+      <span class="btn-icon">⟋</span>
+      <span class="btn-label">Slice</span>
+    </button>
+ 
+    <button class="mode-btn" data-mode="clean"
+            style="--btn-color:#50efb0; --btn-bg:rgba(80,239,176,0.08); --btn-glow:rgba(80,239,176,0.2)">
+      <span class="btn-icon">◌</span>
+      <span class="btn-label">Clean</span>
+    </button>
+ 
+    <button class="mode-btn" data-mode="frost"
+            style="--btn-color:#8fd6ff; --btn-bg:rgba(143,214,255,0.08); --btn-glow:rgba(143,214,255,0.2)">
+      <span class="btn-icon">❄</span>
+      <span class="btn-label">Frost</span>
+    </button>
+ 
+    <button class="mode-btn" data-mode="garden"
+            style="--btn-color:#7ee787; --btn-bg:rgba(126,231,135,0.08); --btn-glow:rgba(126,231,135,0.22)">
+      <span class="btn-icon">♣</span>
+      <span class="btn-label">Jardin</span>
+    </button>
+ 
+    <button class="mode-btn" data-mode="ink"
+            style="--btn-color:#c084fc; --btn-bg:rgba(192,132,252,0.09); --btn-glow:rgba(192,132,252,0.22)">
+      <span class="btn-icon">✦</span>
+      <span class="btn-label">Ink</span>
+    </button>
+
+    <button class="mode-btn" data-mode="galaxy"
+            style="--btn-color:#7dd3ff; --btn-bg:rgba(125,211,255,0.08); --btn-glow:rgba(125,211,255,0.25)">
+      <span class="btn-icon">✦</span>
+      <span class="btn-label">Galaxy</span>
+    </button>
+  </div>
+ 
+</div>
+ 
+<script src="flow.js"></script>
+</body>
+</html>
